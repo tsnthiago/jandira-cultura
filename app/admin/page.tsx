@@ -8,6 +8,8 @@ const Admin = () => {
 
     const handleSave = async (newPoint: any) => {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        console.log(apiUrl);
+        
         const response = await fetch(`${apiUrl}/api/admin`, {
             method: 'POST',
             headers: {

@@ -11,6 +11,7 @@ const Points = () => {
 
     useEffect(() => {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        console.log(apiUrl);
 
         fetch(`${apiUrl}/api/points?page=${currentPage}&limit=${pointsPerPage}`)
             .then(response => response.json())
