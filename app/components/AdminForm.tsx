@@ -1,48 +1,38 @@
 // components/AdminForm.tsx
-
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-const isValidYouTubeUrl = (url: string) => {
-    const regex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/|.+\?v=)|youtu\.be\/)[\w-]{11}$/;
-    return regex.test(url);
-};
+// Defina a interface para as propriedades que o componente espera receber
+interface AdminFormProps {
+    onSave: (newPoint: { title: string; description: string; videoId: string; tags: string }) => void;
+}
 
-const AdminForm = () => {
+const AdminForm: React.FC<AdminFormProps> = ({ onSave }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [videoId, setVideoId] = useState('');
     const [tags, setTags] = useState('');
-    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);  // Mostra o spinner de carregamento
 
+        // Crie o objeto newPoint com os dados do formulário
         const newPoint = { title, description, videoId, tags };
 
-        try {
-            const response = await fetch('/api/addPoint', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newPoint),
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                toast.success('Ponto turístico adicionado com sucesso!');
-                setTitle('');
-                setDescription('');
-                setVideoId('');
-                setTags('');
-            } else {
-                toast.error(data.message || 'Erro ao adicionar ponto turístico');
-            }
-        } catch (error) {
-            toast.error('Erro ao enviar o formulário');
-        } finally {
-            setLoading(false);  // Esconde o spinner de carregamento
+        // Validação simples (você pode aprimorar isso)
+        if (!title || !description || !videoId) {
+            toast.error('Preencha todos os campos obrigatórios!');
+            return;
         }
+
+        onSave(newPoint); // Chame a função onSave que foi passada como props
+        toast.success('Ponto turístico adicionado com sucesso!');
+
+        // Limpe os campos do formulário após o envio
+        setTitle('');
+        setDescription('');
+        setVideoId('');
+        setTags('');
     };
 
     return (
@@ -68,13 +58,13 @@ const AdminForm = () => {
                 ></textarea>
             </div>
             <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">ID ou URL do Vídeo</label>
+                <label className="block text-gray-700 font-bold mb-2">ID do Vídeo</label>
                 <input
                     type="text"
                     value={videoId}
                     onChange={(e) => setVideoId(e.target.value)}
                     className="border border-gray-300 p-2 w-full rounded-md"
-                    placeholder="Digite o ID do vídeo ou URL do YouTube"
+                    placeholder="Digite o ID ou URL do vídeo"
                 />
             </div>
             <div className="mb-4">
@@ -87,12 +77,8 @@ const AdminForm = () => {
                     placeholder="Digite as tags separadas por vírgula"
                 />
             </div>
-            <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
-                disabled={loading}
-            >
-                {loading ? 'Salvando...' : 'Salvar'}
+            <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                Salvar
             </button>
         </form>
     );
