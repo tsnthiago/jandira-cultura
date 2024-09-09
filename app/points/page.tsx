@@ -7,10 +7,12 @@ import PointCard from '../components/PointCard';
 const Points = () => {
     const [points, setPoints] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const pointsPerPage = 6;  // Alterei para 6 pontos por página para fazer mais sentido com a exibição de 3 cards por linha
+    const pointsPerPage = 9;
 
     useEffect(() => {
-        fetch(`/api/points?page=${currentPage}&limit=${pointsPerPage}`)
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+        fetch(`${apiUrl}/api/points?page=${currentPage}&limit=${pointsPerPage}`)
             .then(response => response.json())
             .then(data => setPoints(data))
             .catch(error => console.error("Erro ao carregar os pontos turísticos:", error));

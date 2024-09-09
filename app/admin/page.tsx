@@ -7,7 +7,8 @@ const Admin = () => {
     const [points, setPoints] = useState<any[]>([]);
 
     const handleSave = async (newPoint: any) => {
-        const response = await fetch('/api/admin', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const response = await fetch(`${apiUrl}/api/admin`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
