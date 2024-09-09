@@ -11,12 +11,20 @@ const Points = () => {
 
     useEffect(() => {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        console.log(apiUrl);
+        console.log('apiUrl: ' + apiUrl);
 
-        fetch(`${apiUrl}/api/points?page=${currentPage}&limit=${pointsPerPage}`)
-            .then(response => response.json())
-            .then(data => setPoints(data))
-            .catch(error => console.error("Erro ao carregar os pontos turísticos:", error));
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${apiUrl}/api/points?page=${currentPage}&limit=${pointsPerPage}`);
+                console.log('response: ' + response);
+                const data = await response.json();
+                setPoints(data);
+            } catch (error) {
+                console.error("Erro ao carregar os pontos turísticos:", error);
+            }
+        };
+
+        fetchData();
     }, [currentPage]);
 
     const handleNextPage = () => setCurrentPage(prev => prev + 1);
