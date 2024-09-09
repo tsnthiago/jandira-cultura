@@ -1,6 +1,6 @@
+"use client";
+
 import { useState } from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import AdminForm from '../components/AdminForm';
 
 const Admin = () => {
@@ -20,7 +20,6 @@ const Admin = () => {
 
     return (
         <div>
-            <Header />
             <main>
                 <h1>Administração</h1>
                 <AdminForm onSave={handleSave} />
@@ -31,7 +30,6 @@ const Admin = () => {
                     ))}
                 </div>
             </main>
-            <Footer />
         </div>
     );
 };
