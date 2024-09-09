@@ -21,10 +21,8 @@ const Admin = () => {
     return (
         <div>
             <main>
-                <h1>Administração</h1>
                 <AdminForm onSave={handleSave} />
                 <div>
-                    <h2>Pontos Cadastrados</h2>
                     {points.map((point, index) => (
                         <p key={index}>{point.title}</p>
                     ))}

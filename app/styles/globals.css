@@ -17,18 +17,13 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif; /* Você pode ajustar a fonte */
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-  min-height: 100vh;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  background-color: #fff; /* Garante que o fundo de toda a página seja branco */
+  color: #333; /* Cor do texto para melhor contraste */
+  font-family: 'Inter', sans-serif; /* Pode substituir pela fonte de sua escolha */
+}
+
+h1, h2, h3, h4 {
+  color: #1a1a1a; /* Garanta que títulos tenham uma boa cor de contraste */
 }
 
 main {

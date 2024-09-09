@@ -1,20 +1,17 @@
 // pages/api/points.js
 
-export default function handler(req, res) {
-    const points = [
-        {
-            title: "Ponto Turístico 1",
-            description: "Descrição do ponto turístico 1",
-            videoId: "abc123",
-            tags: ["histórico", "cultura"]
-        },
-        {
-            title: "Ponto Turístico 2",
-            description: "Descrição do ponto turístico 2",
-            videoId: "def456",
-            tags: ["natureza", "parque"]
-        }
-    ];
+import clientPromise from '../../lib/mongodb'; // Atualizado para o caminho correto
+
+export default async function handler(req, res) {
+  try {
+    const client = await clientPromise;
+    const db = client.db('jandira-cultura'); // Nome do seu banco de dados
+
+    const points = await db.collection('points').find({}).toArray();
 
     res.status(200).json(points);
+  } catch (error) {
+    console.error("Erro ao conectar com o MongoDB:", error);
+    res.status(500).json({ error: 'Erro ao carregar os pontos turísticos' });
+  }
 }
