@@ -1,15 +1,18 @@
 import clientPromise from '../../lib/mongodb';
 
-const isValidYouTubeUrl = (url) => {
-  const regex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/|.+\?v=)|youtu\.be\/)[\w-]{11}$/;
-  return regex.test(url);
+const extractYouTubeId = (url) => {
+  const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
 };
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { title, description, videoId, tags } = req.body;
+    const { title, description, videoId: videoUrl, tags } = req.body;
 
-    if (!title || !description || !isValidYouTubeUrl(videoId)) {
+    const extractedVideoId = extractYouTubeId(videoUrl); // Extract only the video ID
+
+    if (!title || !description || !extractedVideoId) {
       return res.status(400).json({ message: 'Preencha todos os campos corretamente e insira um ID de vídeo válido!' });
     }
 
@@ -20,7 +23,7 @@ export default async function handler(req, res) {
       const newPoint = {
         title,
         description,
-        videoId,
+        videoId: extractedVideoId,  // Save only the video ID
         tags: tags.split(',').map(tag => tag.trim()),
         createdAt: new Date(),
       };

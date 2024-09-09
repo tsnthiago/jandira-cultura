@@ -1,8 +1,14 @@
-// pages/points.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
 import PointCard from '../components/PointCard';
+
+// Helper function to extract the video ID from a YouTube URL
+const extractYouTubeId = (url: string) => {
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;  // Return only the video ID
+};
 
 const Points = () => {
     const [points, setPoints] = useState([]);
@@ -18,7 +24,14 @@ const Points = () => {
                 const response = await fetch(`${apiUrl}/api/points?page=${currentPage}&limit=${pointsPerPage}`);
                 console.log('response: ' + response);
                 const data = await response.json();
-                setPoints(data);
+
+                // Modify the points data to include only the video ID
+                const updatedPoints = data.map((point: any) => ({
+                    ...point,
+                    videoId: extractYouTubeId(point.videoId), // Extract the video ID from the URL
+                }));
+
+                setPoints(updatedPoints);
             } catch (error) {
                 console.error("Erro ao carregar os pontos turísticos:", error);
             }
