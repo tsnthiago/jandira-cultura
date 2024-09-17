@@ -153,21 +153,10 @@ export default function JandiraCultural() {
       case "home":
         const featuredPoints = filteredPoints.slice(0, 3);
         return (
-          <motion.div className="space-y-8" initial="hidden" animate="visible" exit="hidden" variants={fadeIn}>
+          <motion.div className="space-y-4" initial="hidden" animate="visible" exit="hidden" variants={fadeIn}>
             {/* Seção de Destaques na Página Inicial */}
-            <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32 relative min-h-[400px]">
-              {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {featuredPoints.map((point, index) => (
-                  <PointCard key={point._id} point={point} onClick={function (): void {
-                    throw new Error('Function not implemented.');
-                  }} />
-                ))}
-              </div>
-              <div
-                className="absolute inset-0 bg-cover bg-center z-[-1]"
-                style={{ backgroundImage: "url('/background.jpg')" }}
-              ></div> */}
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4 text-center relative z-10 bg-white bg-opacity-80 py-10">
+            <section className="space-y-4 pb-4 pt-4 md:pb-4 md:pt-4 lg:py-4 relative min-h-[100px]">
+              <div className="container mx-auto px-4 sm:px-4 lg:px-4 flex flex-col items-center gap-4 text-center relative z-10 bg-white bg-opacity-80 py-4">
                 <motion.h1
                   className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
                   variants={slideIn}

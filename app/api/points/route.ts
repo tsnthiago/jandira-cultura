@@ -33,10 +33,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { title, description, videoId, tags } = await request.json();
+  const { title, description, videoId, imageUrl, tags, latitude, longitude } = await request.json();
 
   // Validação dos dados
-  if (!title || !description || !videoId) {
+  if (!title || !description || !videoId || !latitude || !longitude) {
     return NextResponse.json({ message: 'Campos obrigatórios ausentes' }, { status: 400 });
   }
 
@@ -49,7 +49,9 @@ export async function POST(request: Request) {
       title,
       description,
       videoId,
+      image: imageUrl,
       tags: tags.split(',').map((tag: string) => tag.trim()),
+      location: { lat: latitude, lng: longitude },
       createdAt: new Date(),
     };
 

@@ -28,8 +28,17 @@ const AddPointForm: React.FC = () => {
     longitude: 0,
   });
 
+  const extractYouTubeId = (url: string): string | null => {
+    const regex = /(?:youtube\.com.*(?:\\?|&)v=|youtu\.be\/)([^&]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === 'videoUrl') {
+      const videoId = extractYouTubeId(e.target.value);
+      setFormData({ ...formData, videoId: videoId || '' });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
