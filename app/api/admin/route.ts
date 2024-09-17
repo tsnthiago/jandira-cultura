@@ -17,11 +17,15 @@ interface NewPoint {
 
 export async function POST(request: Request) {
   try {
-    const { title, description, videoId, tags, imageUrl, latitude, longitude } = await request.json();
+    const { title, description, videoId, tags, imageUrl, latitude, longitude } =
+      await request.json();
 
     // Validação dos campos obrigatórios
     if (!title || !description || !videoId || !imageUrl) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Missing required fields' },
+        { status: 400 }
+      );
     }
 
     // Conexão com o MongoDB
@@ -39,7 +43,9 @@ export async function POST(request: Request) {
     };
 
     // Inserção do novo ponto na coleção do MongoDB
-    const result: InsertOneResult<Document> = await db.collection('points').insertOne(newPoint);
+    const result: InsertOneResult<Document> = await db
+      .collection('points')
+      .insertOne(newPoint);
 
     // Retorno de sucesso
     return NextResponse.json(
@@ -57,5 +63,8 @@ export async function POST(request: Request) {
 
 // Opcional: Adicione uma função GET se necessário
 export async function GET(request: Request) {
-  return NextResponse.json({ message: 'GET não implementado para /api/admin' }, { status: 200 });
+  return NextResponse.json(
+    { message: 'GET não implementado para /api/admin' },
+    { status: 200 }
+  );
 }

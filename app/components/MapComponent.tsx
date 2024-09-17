@@ -27,7 +27,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ lat, lng, title }) => {
       <MapContainer center={center} zoom={13} className="h-full w-full">
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <Marker position={center}>
           <Popup>{title}</Popup>

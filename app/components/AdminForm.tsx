@@ -9,6 +9,9 @@ interface AdminFormProps {
     description: string;
     videoId: string;
     tags: string;
+    imageUrl: string;
+    latitude: number;
+    longitude: number;
   }) => void;
 }
 
@@ -17,20 +20,31 @@ const AdminForm: React.FC<AdminFormProps> = ({ onSave }) => {
   const [description, setDescription] = useState('');
   const [videoId, setVideoId] = useState('');
   const [tags, setTags] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [latitude, setLatitude] = useState(0);
+  const [longitude, setLongitude] = useState(0);
+
+  const extractYouTubeId = (url: string): string | null => {
+    const regex =
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Crie o objeto newPoint com os dados do formulário
-    const newPoint = { title, description, videoId, tags };
+    const newPoint = {
+      title,
+      description,
+      videoId: extractYouTubeId(videoId) || '', // Extract YouTube ID if present
+      tags,
+      imageUrl,
+      latitude,
+      longitude,
+    };
 
-    // Validação simples (você pode aprimorar isso)
-    if (!title || !description || !videoId) {
-      toast.error('Preencha todos os campos obrigatórios!');
-      return;
-    }
-
-    onSave(newPoint); // Chame a função onSave que foi passada como props
+    onSave(newPoint);
     toast.success('Ponto turístico adicionado com sucesso!');
 
     // Limpe os campos do formulário após o envio
@@ -38,6 +52,9 @@ const AdminForm: React.FC<AdminFormProps> = ({ onSave }) => {
     setDescription('');
     setVideoId('');
     setTags('');
+    setImageUrl('');
+    setLatitude(0);
+    setLongitude(0);
   };
 
   return (
@@ -80,6 +97,18 @@ const AdminForm: React.FC<AdminFormProps> = ({ onSave }) => {
         />
       </div>
       <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-2">
+          URL da Imagem
+        </label>
+        <input
+          type="text"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          className="border border-gray-300 p-2 w-full rounded-md"
+          placeholder="Digite a URL da imagem"
+        />
+      </div>
+      <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2">Tags</label>
         <input
           type="text"
@@ -87,6 +116,26 @@ const AdminForm: React.FC<AdminFormProps> = ({ onSave }) => {
           onChange={(e) => setTags(e.target.value)}
           className="border border-gray-300 p-2 w-full rounded-md"
           placeholder="Digite as tags separadas por vírgula"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-2">Latitude</label>
+        <input
+          type="number"
+          value={latitude}
+          onChange={(e) => setLatitude(parseFloat(e.target.value))}
+          className="border border-gray-300 p-2 w-full rounded-md"
+          placeholder="Digite a latitude"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-2">Longitude</label>
+        <input
+          type="number"
+          value={longitude}
+          onChange={(e) => setLongitude(parseFloat(e.target.value))}
+          className="border border-gray-300 p-2 w-full rounded-md"
+          placeholder="Digite a longitude"
         />
       </div>
       <button

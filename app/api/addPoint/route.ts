@@ -3,7 +3,7 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../../lib/mongodb';
 
-const extractYouTubeId = (url: string): string | null => {
+const extractYouTubeId = (url: string): string | null => { // Adiciona a tipagem do retorno
   const regex =
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = url.match(regex);

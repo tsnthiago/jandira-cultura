@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Modal, ModalFooter, ModalContent, ModalHeader, ModalBody } from '@nextui-org/react';
+import { Modal, Button, ModalFooter, ModalContent, ModalHeader, ModalBody } from '@nextui-org/react';
 import { Download, Share2, Tag } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 // Importação dinâmica do MapComponent
 const MapComponentNoSSR = dynamic(() => import('./MapComponent'), {
@@ -54,20 +55,24 @@ const DetailModal: React.FC<DetailModalProps> = ({
         <ModalBody>
           <div className="space-y-4">
             {/* Imagem */}
-            {selectedPoint.image ? (
-              <img
-                src={selectedPoint.image}
-                alt={selectedPoint.title}
-                className="w-full h-48 object-cover rounded-t-md"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = '/placeholder.jpg';
-                }}
-              />
-            ) : (
-              <div className="w-full h-48 bg-gray-300 rounded-t-md flex items-center justify-center">
-                <span className="text-gray-500">Imagem não disponível</span>
-              </div>
-            )}
+            <div className="relative w-full h-64 rounded-md overflow-hidden">
+              {selectedPoint.image ? (
+                <Image
+                  src={selectedPoint.image}
+                  alt={`Imagem de ${selectedPoint.title}`}
+                  fill
+                  sizes="100vw"
+                  style={{ objectFit: 'cover' }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = 'placeholder.jpg';
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-300 rounded-t-md flex items-center justify-center">
+                  <span className="text-gray-500">Imagem não disponível</span>
+                </div>
+              )}
+            </div>
 
             {/* Descrição */}
             <p className="text-foreground">
@@ -75,24 +80,34 @@ const DetailModal: React.FC<DetailModalProps> = ({
             </p>
 
             {/* Vídeo */}
-            <div className="aspect-video mt-4">
-              <iframe
-                width="100%"
-                height="100%"
-                src={`https://www.youtube.com/embed/${selectedPoint.videoId}`}
-                title={selectedPoint.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+            <div className="aspect-video mt-4 rounded-md overflow-hidden">
+              {selectedPoint.videoId ? (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${selectedPoint.videoId}`}
+                  title={`Vídeo de ${selectedPoint.title}`}
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center rounded-md">
+                  <span className="text-gray-500">Vídeo não disponível</span>
+                </div>
+              )}
             </div>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mt-4">
-              {selectedPoint.tags.map((tag: string) => (
+              {selectedPoint.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  className={cn(
+                    'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+                    'dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80' // Adicione classes para o modo escuro
+                  )}
                 >
                   <Tag className="mr-1 h-3 w-3" />
                   {tag}
@@ -104,28 +119,32 @@ const DetailModal: React.FC<DetailModalProps> = ({
             <div className="mt-4">
               <h3 className="text-lg font-semibold mb-2">Localização</h3>
               <div className="h-64 rounded-md overflow-hidden">
-                {selectedPoint.location && (
+                {selectedPoint.location ? (
                   <MapComponentNoSSR
                     lat={selectedPoint.location.lat}
                     lng={selectedPoint.location.lng}
                     title={selectedPoint.title}
                   />
+                ) : (
+                  <p className="text-center text-gray-500">
+                    Localização não disponível.
+                  </p>
                 )}
               </div>
             </div>
           </div>
         </ModalBody>
         <ModalFooter className="flex justify-center space-x-4">
-          <Button variant="outline" onClick={onClose}>
+          <Button color="danger" variant="light" onClick={onClose}>
             Fechar
           </Button>
           {selectedPoint && (
             <>
-              <Button variant="default" onClick={() => handleDownload(selectedPoint)}>
+              <Button color="primary" variant="flat" onClick={() => handleDownload(selectedPoint)}>
                 <Download className="mr-2 h-4 w-4" />
                 Baixar Informações
               </Button>
-              <Button variant="secondary" onClick={() => handleShare(selectedPoint)}>
+              <Button color="secondary" variant="flat" onClick={() => handleShare(selectedPoint)}>
                 <Share2 className="mr-2 h-4 w-4" />
                 Compartilhar Localização
               </Button>

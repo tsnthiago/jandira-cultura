@@ -73,13 +73,16 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { title, description, videoId, tags, imageUrl, latitude, longitude } = await request.json();
+    const { title, description, videoId, tags, imageUrl, latitude, longitude } =
+      await request.json();
 
     // Validação dos campos obrigatórios
     if (!title || !description || !videoId || !imageUrl) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Missing required fields' },
+        { status: 400 }
+      );
     }
-
     // Conexão com o MongoDB
     const client = await clientPromise;
     const db = client.db('jandira-cultura');
@@ -95,7 +98,9 @@ export async function POST(request: Request) {
     };
 
     // Inserção do novo ponto na coleção do MongoDB
-    const result: InsertOneResult<Document> = await db.collection('points').insertOne(newPoint);
+    const result: InsertOneResult<Document> = await db
+      .collection('points')
+      .insertOne(newPoint);
 
     // Retorno de sucesso
     return NextResponse.json(

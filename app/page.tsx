@@ -1,10 +1,9 @@
-// ./app/page.tsx
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -23,7 +22,6 @@ import 'leaflet/dist/leaflet.css';
 import { toast } from 'react-hot-toast';
 import PointCard from './components/PointCard';
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
-import { Button } from '@/components/ui/button';
 
 // Importação dinâmica do componente de mapa sem SSR
 const MapComponentNoSSR = dynamic(() => import('./components/MapComponent'), {
@@ -164,16 +162,20 @@ export default function JandiraCultural() {
             variants={fadeIn}
           >
             {/* Seção de Destaques na Página Inicial */}
-            <section className="space-y-4 pb-4 pt-4 md:pb-4 md:pt-4 lg:py-4 relative min-h-[100px]">
-              <div className="container mx-auto px-4 sm:px-4 lg:px-4 flex flex-col items-center gap-4 text-center relative z-10 bg-white bg-opacity-80 py-4">
+            <section className="space-y-4 pb-4 pt-4 md:pb-4 md:pt-4 lg:py-4 relative min-h-[400px]">
+              <div
+                className="absolute inset-0 bg-cover bg-center z-[-1] opacity-50"
+                style={{ backgroundImage: "url('/background.jpg')" }}
+              ></div>
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4 text-center relative z-10 bg-opacity-90 py-10">
                 <motion.h1
-                  className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
+                  className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white"
                   variants={slideIn}
                 >
                   Descubra Jandira
                 </motion.h1>
                 <motion.p
-                  className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8"
+                  className="max-w-[42rem] leading-normal text-white sm:text-xl sm:leading-8"
                   variants={fadeIn}
                 >
                   Explore os tesouros culturais da nossa cidade. De parques
@@ -624,15 +626,15 @@ export default function JandiraCultural() {
                 </div>
               </ModalBody>
               <ModalFooter className="flex justify-center space-x-4">
-                <Button variant="outline" onClick={onClose}>
+                <Button color="danger" variant="outline" onClick={onClose}>
                   Fechar
                 </Button>
                 {selectedPoint && (
                   <>
-                    <Button variant="default" onClick={() => handleDownload(selectedPoint)}>
+                    <Button color="primary" variant="outline" onClick={() => handleDownload(selectedPoint)}>
                       Baixar Informações
                     </Button>
-                    <Button variant="secondary" onClick={() => handleShare(selectedPoint)}>
+                    <Button color="secondary" variant="outline" onClick={() => handleShare(selectedPoint)}>
                       Compartilhar Localização
                     </Button>
                   </>

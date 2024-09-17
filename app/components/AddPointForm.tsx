@@ -37,9 +37,18 @@ const AddPointForm: React.FC = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    if (e.target.name === 'videoUrl') {
+    // Atualiza o estado do formulário com o valor do campo correspondente
+    setFormData((prevData) => ({
+      ...prevData,
+      [e.target.name]: e.target.value,
+    }));
+
+    if (e.target.name === 'videoId') {
       const videoId = extractYouTubeId(e.target.value);
-      setFormData({ ...formData, videoId: videoId || '' });
+      setFormData((prevData) => ({
+        ...prevData,
+        videoId: videoId || '',
+      }));
     }
   };
 
