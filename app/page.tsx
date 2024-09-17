@@ -151,12 +151,13 @@ export default function JandiraCultural() {
 
     switch (activeTab) {
       case "home":
+        const featuredPoints = filteredPoints.slice(0, 3);
         return (
           <motion.div className="space-y-8" initial="hidden" animate="visible" exit="hidden" variants={fadeIn}>
             {/* Seção de Destaques na Página Inicial */}
             <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32 relative min-h-[400px]">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPoints.map((point, index) => (
+              {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredPoints.map((point, index) => (
                   <PointCard key={point._id} point={point} onClick={function (): void {
                     throw new Error('Function not implemented.');
                   }} />
@@ -165,8 +166,8 @@ export default function JandiraCultural() {
               <div
                 className="absolute inset-0 bg-cover bg-center z-[-1]"
                 style={{ backgroundImage: "url('/background.jpg')" }}
-              ></div>
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4 text-center relative z-10 bg-white bg-opacity-80 py-10"> {/* Opacidade para o container do texto */}
+              ></div> */}
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4 text-center relative z-10 bg-white bg-opacity-80 py-10">
                 <motion.h1
                   className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
                   variants={slideIn}
@@ -191,37 +192,24 @@ export default function JandiraCultural() {
             {/* Seção de Destaques */}
             <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4 text-center">
-                <motion.h2
-                  className="font-heading text-3xl sm:text-4xl font-bold"
-                  variants={slideIn}
-                >
+                <motion.h2 className="font-heading text-3xl sm:text-4xl font-bold" variants={slideIn}>
                   Destaques
                 </motion.h2>
-                <motion.p
-                  className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8"
-                  variants={fadeIn}
-                >
+                <motion.p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8" variants={fadeIn}>
                   Conheça alguns dos lugares mais amados de Jandira
                 </motion.p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPoints.map((point, index) => (
-                  <motion.div
-                    key={point._id}
-                    variants={fadeIn}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ delay: index * 0.1 }}
-                  >
+                {featuredPoints.map((point, index) => (
+                  <motion.div key={point._id} variants={fadeIn} initial="hidden" animate="visible" transition={{ delay: index * 0.1 }}>
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                      {/* Verificação da URL da imagem e imagem de fallback */}
                       {point.image ? (
                         <img
                           src={point.image}
                           alt={point.title}
                           className="w-full h-48 object-cover rounded-t-md"
                           onError={(e) => {
-                            e.currentTarget.src = "placeholder.jpg"; // Substitua por uma URL válida para sua imagem de fallback
+                            e.currentTarget.src = "placeholder.jpg";
                           }}
                         />
                       ) : (
@@ -249,44 +237,25 @@ export default function JandiraCultural() {
       case "points":
         return (
           <motion.div className="space-y-8" initial="hidden" animate="visible" exit="hidden" variants={fadeIn}>
-            <motion.h2
-              className="font-heading text-3xl sm:text-4xl font-bold mb-6"
-              variants={slideIn}
-            >
+            <motion.h2 className="font-heading text-3xl sm:text-4xl font-bold mb-6" variants={slideIn}>
               Pontos de Interesse
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPoints.map((point, index) => (
-                <motion.div
-                  key={point._id}
-                  variants={fadeIn}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delay: index * 0.1 }}
-                >
+                <motion.div key={point._id} variants={fadeIn} initial="hidden" animate="visible" transition={{ delay: index * 0.1 }}>
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <img
                       src={point.image}
                       alt={point.title}
                       className="w-full h-48 object-cover rounded-t-md"
                       onError={(e) => {
-                        e.currentTarget.src = "placeholder.jpg"; // Substituição de imagem de fallback
+                        e.currentTarget.src = "placeholder.jpg";
                       }}
                     />
                     <CardHeader>
                       <CardTitle>{point.title}</CardTitle>
                       <CardDescription>{point.description.substring(0, 100)}...</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2">
-                        {point.tags.map((tag: string) => (
-                          <span key={tag} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                            <Tag className="mr-1 h-3 w-3" />
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </CardContent>
                     <CardFooter>
                       <Button variant="outline" className="w-full" onClick={() => openPointDetails(point)}>
                         Ver Detalhes
