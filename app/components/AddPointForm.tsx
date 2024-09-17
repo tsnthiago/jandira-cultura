@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 interface PointData {
   title: string;
@@ -34,7 +34,9 @@ const AddPointForm: React.FC = () => {
     return match ? match[1] : null;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     if (e.target.name === 'videoUrl') {
       const videoId = extractYouTubeId(e.target.value);
       setFormData({ ...formData, videoId: videoId || '' });
@@ -45,7 +47,8 @@ const AddPointForm: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('/api/points', { // Rota da API para adicionar pontos
+      const response = await fetch('/api/points', {
+        // Rota da API para adicionar pontos
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +57,7 @@ const AddPointForm: React.FC = () => {
       });
 
       if (response.ok) {
-        toast.success("Ponto turístico adicionado com sucesso!");
+        toast.success('Ponto turístico adicionado com sucesso!');
         setFormData({
           title: '',
           description: '',
@@ -66,11 +69,11 @@ const AddPointForm: React.FC = () => {
         }); // Limpa o formulário
       } else {
         const errorData = await response.json();
-        toast.error(errorData.message || "Erro ao adicionar ponto turístico.");
+        toast.error(errorData.message || 'Erro ao adicionar ponto turístico.');
       }
     } catch (error) {
-      console.error("Erro ao adicionar ponto turístico:", error);
-      toast.error("Erro ao adicionar ponto turístico.");
+      console.error('Erro ao adicionar ponto turístico:', error);
+      toast.error('Erro ao adicionar ponto turístico.');
     }
   };
 

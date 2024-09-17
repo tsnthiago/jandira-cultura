@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server';
 import clientPromise from '../../../lib/mongodb';
 
 const extractYouTubeId = (url: string): string | null => {
-  const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const regex =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = url.match(regex);
   return match ? match[1] : null;
 };
@@ -16,7 +17,10 @@ export async function POST(request: Request) {
 
   if (!title || !description || !extractedVideoId) {
     return NextResponse.json(
-      { message: 'Preencha todos os campos corretamente e insira um ID de vídeo válido!' },
+      {
+        message:
+          'Preencha todos os campos corretamente e insira um ID de vídeo válido!',
+      },
       { status: 400 }
     );
   }
@@ -34,9 +38,15 @@ export async function POST(request: Request) {
     };
 
     const result = await db.collection('points').insertOne(newPoint);
-    return NextResponse.json({ message: 'Ponto turístico adicionado com sucesso!', result }, { status: 201 });
+    return NextResponse.json(
+      { message: 'Ponto turístico adicionado com sucesso!', result },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error("Erro ao inserir ponto turístico:", error);
-    return NextResponse.json({ error: 'Erro ao adicionar o ponto turístico' }, { status: 500 });
+    console.error('Erro ao inserir ponto turístico:', error);
+    return NextResponse.json(
+      { error: 'Erro ao adicionar o ponto turístico' },
+      { status: 500 }
+    );
   }
 }

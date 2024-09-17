@@ -17,13 +17,13 @@
 }
 
 body {
-  background-color: #fff; /* Garante que o fundo de toda a página seja branco */
-  color: #333; /* Cor do texto para melhor contraste */
-  font-family: 'Inter', sans-serif; /* Pode substituir pela fonte de sua escolha */
+  background-color: #fff;
+  color: #333;
+  font-family: 'Inter', sans-serif;
 }
 
 h1, h2, h3, h4 {
-  color: #1a1a1a; /* Garanta que títulos tenham uma boa cor de contraste */
+  color: #1a1a1a;
 }
 
 main {

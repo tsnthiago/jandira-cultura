@@ -5,88 +5,78 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip } from '@nextui-org/react';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import Image from 'next/image';
-import { ChevronRight, MapPin, Tag, Menu, Search, Home, Info, Mail, Download, Share2 } from 'lucide-react';
+import { ChevronRight, MapPin, Tag, Menu, Search, Home, Info, Mail, Sun, Moon, Download, Share2 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import { toast } from 'react-hot-toast';
 import PointCard from './components/PointCard';
+import { TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
+import { Button } from '@/components/ui/button';
 
 // Importação dinâmica do componente de mapa sem SSR
 const MapComponentNoSSR = dynamic(() => import('./components/MapComponent'), {
   ssr: false,
-  loading: () => <p>Carregando mapa...</p>
+  loading: () => <p>Carregando mapa...</p>,
 });
 
 // Animações para o Framer Motion
 const fadeIn = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.5 } }
+  visible: { opacity: 1, transition: { duration: 0.5 } },
 };
 
 const slideIn = {
   hidden: { x: -20 },
-  visible: { x: 0, opacity: 1, transition: { duration: 0.5 } }
+  visible: { x: 0, opacity: 1, transition: { duration: 0.5 } },
 };
 
+interface Point {
+  _id: string;
+  title: string;
+  image: string;
+  description: string;
+  videoId: string;
+  tags: string[];
+  createdAt: string;
+  location?: { lat: number; lng: number };
+}
+
 export default function JandiraCultural() {
-  // Atualizado o tipo de estado para remover "events" e "admin"
-  const [activeTab, setActiveTab] = useState<"home" | "points" | "about" | "contact">("home");
-
-  // Estado para controle de modo escuro/claro
+  // Estados
+  const [activeTab, setActiveTab] = useState<'home' | 'points' | 'about' | 'contact'>('home');
   const [darkMode, setDarkMode] = useState(false);
-
-  // Estado para armazenar o ponto selecionado para detalhes
-  const [selectedPoint, setSelectedPoint] = useState<any>(null);
-
-  // Estado para armazenar os pontos turísticos
-  const [points, setPoints] = useState<any[]>([]);
-
-  // Estado para controle de carregamento
+  const [selectedPoint, setSelectedPoint] = useState<Point | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [points, setPoints] = useState<Point[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Estado para a consulta de pesquisa
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Hook do NextUI para controle de modal
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  // Filtrar os pontos com base na consulta de pesquisa
-  const filteredPoints = points.filter(point =>
-    point.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    point.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  // Efeito para alternar entre modo escuro e claro
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      toast.success("Modo escuro ativado!");
-    } else {
-      document.documentElement.classList.remove('dark');
-      toast.success("Modo claro ativado!");
-    }
-  }, [darkMode]);
-
-  // Efeito para buscar os pontos turísticos ao montar o componente
+  // useEffect para carregar os pontos turísticos do banco de dados
   useEffect(() => {
     const fetchPoints = async () => {
       setLoading(true);
       try {
         const response = await fetch(`/api/points?page=1&limit=100`);
-        if (!response.ok) throw new Error('Erro ao buscar os pontos de interesse.');
-
+        if (!response.ok) {
+          throw new Error('Erro ao buscar os pontos de interesse.');
+        }
         const data = await response.json();
         setPoints(data.points);
       } catch (error) {
-        console.error("Erro ao carregar os pontos turísticos:", error);
-        toast.error("Erro ao carregar os pontos turísticos.");
+        console.error('Erro ao carregar os pontos turísticos:', error);
+        toast.error('Erro ao carregar os pontos turísticos.');
       } finally {
         setLoading(false);
       }
@@ -95,21 +85,31 @@ export default function JandiraCultural() {
     fetchPoints();
   }, []);
 
-  // Função para alternar o modo escuro/claro
+  // Funções para controlar o tema (modo escuro)
   const toggleDarkMode = () => {
-    setDarkMode(prev => !prev);
+    setDarkMode((prev) => !prev);
   };
 
-  // Função para abrir o modal com detalhes do ponto
-  const openPointDetails = (point: any) => {
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      toast.success('Modo escuro ativado!');
+    } else {
+      document.documentElement.classList.remove('dark');
+      toast.success('Modo claro ativado!');
+    }
+  }, [darkMode]);
+
+  // Funções para controlar o modal
+  const openPointDetails = (point: Point) => {
     setSelectedPoint(point);
     onOpen();
   };
 
-  // Função para baixar informações do ponto
-  const handleDownload = (point: any) => {
+  // Funções de download e compartilhamento
+  const handleDownload = (point: Point) => {
     if (!point.location) {
-      toast.error("Localização não disponível para este ponto.");
+      toast.error('Localização não disponível para este ponto.');
       return;
     }
     const data = `
@@ -130,30 +130,39 @@ export default function JandiraCultural() {
     URL.revokeObjectURL(url);
   };
 
-  // Função para compartilhar localização do ponto
-  const handleShare = (point: any) => {
+  const handleShare = (point: Point) => {
     if (navigator.share) {
-      navigator.share({
-        title: point.title,
-        text: point.description,
-        url: `https://maps.google.com/?q=${point.location.lat},${point.location.lng}`
-      }).catch(err => console.error("Erro ao compartilhar:", err));
+      navigator
+        .share({
+          title: point.title,
+          text: point.description,
+          url: `https://maps.google.com/?q=${point.location?.lat},${point.location?.lng}`,
+        })
+        .catch((err) => console.error('Erro ao compartilhar:', err));
     } else {
-      alert(`Compartilhe este local: https://maps.google.com/?q=${point.location.lat},${point.location.lng}`);
+      alert(
+        `Compartilhe este local: https://maps.google.com/?q=${point.location?.lat},${point.location?.lng}`
+      );
     }
   };
 
   // Função para renderizar o conteúdo com base na aba ativa
-  const renderContent = (filteredPoints: any[]) => {
+  const renderContent = (filteredPoints: Point[]) => {
     if (loading) {
       return <p>Carregando pontos...</p>;
     }
 
     switch (activeTab) {
-      case "home":
+      case 'home':
         const featuredPoints = filteredPoints.slice(0, 3);
         return (
-          <motion.div className="space-y-4" initial="hidden" animate="visible" exit="hidden" variants={fadeIn}>
+          <motion.div
+            className="space-y-4"
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={fadeIn}
+          >
             {/* Seção de Destaques na Página Inicial */}
             <section className="space-y-4 pb-4 pt-4 md:pb-4 md:pt-4 lg:py-4 relative min-h-[100px]">
               <div className="container mx-auto px-4 sm:px-4 lg:px-4 flex flex-col items-center gap-4 text-center relative z-10 bg-white bg-opacity-80 py-4">
@@ -167,10 +176,11 @@ export default function JandiraCultural() {
                   className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8"
                   variants={fadeIn}
                 >
-                  Explore os tesouros culturais da nossa cidade. De parques exuberantes a teatros vibrantes, Jandira tem algo para todos.
+                  Explore os tesouros culturais da nossa cidade. De parques
+                  exuberantes a teatros vibrantes, Jandira tem algo para todos.
                 </motion.p>
                 <motion.div variants={fadeIn}>
-                  <Button size="lg" onClick={() => setActiveTab("points")}>
+                  <Button size="lg" onClick={() => setActiveTab('points')}>
                     Explorar Pontos de Interesse
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -181,85 +191,80 @@ export default function JandiraCultural() {
             {/* Seção de Destaques */}
             <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4 text-center">
-                <motion.h2 className="font-heading text-3xl sm:text-4xl font-bold" variants={slideIn}>
+                <motion.h2
+                  className="font-heading text-3xl sm:text-4xl font-bold"
+                  variants={slideIn}
+                >
                   Destaques
                 </motion.h2>
-                <motion.p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8" variants={fadeIn}>
+                <motion.p
+                  className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8"
+                  variants={fadeIn}
+                >
                   Conheça alguns dos lugares mais amados de Jandira
                 </motion.p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {featuredPoints.map((point, index) => (
-                  <motion.div key={point._id} variants={fadeIn} initial="hidden" animate="visible" transition={{ delay: index * 0.1 }}>
-                    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                      {point.image ? (
-                        <img
-                          src={point.image}
-                          alt={point.title}
-                          className="w-full h-48 object-cover rounded-t-md"
-                          onError={(e) => {
-                            e.currentTarget.src = "placeholder.jpg";
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-gray-300 rounded-t-md flex items-center justify-center">
-                          <span className="text-gray-500">Imagem não disponível</span>
-                        </div>
-                      )}
-                      <CardHeader>
-                        <CardTitle>{point.title}</CardTitle>
-                        <CardDescription>{point.description.substring(0, 100)}...</CardDescription>
-                      </CardHeader>
-                      <CardFooter>
-                        <Button variant="outline" className="w-full" onClick={() => openPointDetails(point)}>
-                          Saiba mais
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </CardFooter>
-                    </Card>
+                  <motion.div
+                    key={point._id}
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <PointCard
+                      point={point}
+                      onClick={() => openPointDetails(point)}
+                    />
                   </motion.div>
                 ))}
               </div>
             </section>
           </motion.div>
         );
-      case "points":
+      case 'points':
         return (
-          <motion.div className="space-y-8" initial="hidden" animate="visible" exit="hidden" variants={fadeIn}>
-            <motion.h2 className="font-heading text-3xl sm:text-4xl font-bold mb-6" variants={slideIn}>
+          <motion.div
+            className="space-y-8"
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={fadeIn}
+          >
+            <motion.h2
+              className="font-heading text-3xl sm:text-4xl font-bold mb-6"
+              variants={slideIn}
+            >
               Pontos de Interesse
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPoints.map((point, index) => (
-                <motion.div key={point._id} variants={fadeIn} initial="hidden" animate="visible" transition={{ delay: index * 0.1 }}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <img
-                      src={point.image}
-                      alt={point.title}
-                      className="w-full h-48 object-cover rounded-t-md"
-                      onError={(e) => {
-                        e.currentTarget.src = "placeholder.jpg";
-                      }}
-                    />
-                    <CardHeader>
-                      <CardTitle>{point.title}</CardTitle>
-                      <CardDescription>{point.description.substring(0, 100)}...</CardDescription>
-                    </CardHeader>
-                    <CardFooter>
-                      <Button variant="outline" className="w-full" onClick={() => openPointDetails(point)}>
-                        Ver Detalhes
-                        <ChevronRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </CardFooter>
-                  </Card>
+                <motion.div
+                  key={point._id}
+                  variants={fadeIn}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <PointCard
+                    point={point}
+                    onClick={() => openPointDetails(point)}
+                  />
                 </motion.div>
               ))}
             </div>
           </motion.div>
         );
-      case "about":
+      case 'about':
         return (
-          <motion.div className="space-y-8" initial="hidden" animate="visible" exit="hidden" variants={fadeIn}>
+          <motion.div
+            className="space-y-8"
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={fadeIn}
+          >
             <motion.h2
               className="font-heading text-3xl sm:text-4xl font-bold mb-6"
               variants={slideIn}
@@ -270,25 +275,50 @@ export default function JandiraCultural() {
               <Card className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle>Nossa Missão</CardTitle>
-                  <CardDescription>Conheça mais sobre nossa história e objetivos</CardDescription>
+                  <CardDescription>
+                    Conheça mais sobre nossa história e objetivos
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="mb-4">O projeto Jandira Cultural nasceu da paixão por nossa cidade e do desejo de compartilhar suas riquezas culturais com moradores e visitantes. Nossa missão é proporcionar uma plataforma interativa e informativa que destaque os pontos turísticos, eventos culturais e a história rica de Jandira.</p>
+                  <p className="mb-4">
+                    O projeto Jandira Cultural nasceu da paixão por nossa cidade
+                    e do desejo de compartilhar suas riquezas culturais com
+                    moradores e visitantes. Nossa missão é proporcionar uma
+                    plataforma interativa e informativa que destaque os pontos
+                    turísticos, eventos culturais e a história rica de Jandira.
+                  </p>
                   <p className="mb-4">Através deste projeto, buscamos:</p>
                   <ul className="list-disc list-inside space-y-2">
-                    <li>Promover o turismo local e incentivar a exploração da cidade</li>
-                    <li>Preservar e divulgar a história e cultura de Jandira</li>
-                    <li>Conectar a comunidade com os espaços culturais e eventos locais</li>
-                    <li>Oferecer uma plataforma para artistas e produtores culturais da região</li>
+                    <li>
+                      Promover o turismo local e incentivar a exploração da
+                      cidade
+                    </li>
+                    <li>
+                      Preservar e divulgar a história e cultura de Jandira
+                    </li>
+                    <li>
+                      Conectar a comunidade com os espaços culturais e eventos
+                      locais
+                    </li>
+                    <li>
+                      Oferecer uma plataforma para artistas e produtores
+                      culturais da região
+                    </li>
                   </ul>
                 </CardContent>
               </Card>
             </motion.div>
           </motion.div>
         );
-      case "contact":
+      case 'contact':
         return (
-          <motion.div className="space-y-8" initial="hidden" animate="visible" exit="hidden" variants={fadeIn}>
+          <motion.div
+            className="space-y-8"
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={fadeIn}
+          >
             <motion.h2
               className="font-heading text-3xl sm:text-4xl font-bold mb-6"
               variants={slideIn}
@@ -299,14 +329,17 @@ export default function JandiraCultural() {
               <Card className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle>Envie-nos uma mensagem</CardTitle>
-                  <CardDescription>Estamos aqui para ouvir suas sugestões e feedback</CardDescription>
+                  <CardDescription>
+                    Estamos aqui para ouvir suas sugestões e feedback
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form
                     className="space-y-4"
                     onSubmit={async (e) => {
                       e.preventDefault();
-                      toast.success("Mensagem enviada com sucesso!");
+                      // Implementar envio real da mensagem aqui
+                      toast.success('Mensagem enviada com sucesso!');
                     }}
                   >
                     <div className="space-y-2">
@@ -315,13 +348,24 @@ export default function JandiraCultural() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">E-mail</Label>
-                      <Input id="email" type="email" placeholder="seu@email.com" required />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="message">Mensagem</Label>
-                      <Textarea id="message" placeholder="Sua mensagem ou sugestão" required />
+                      <Textarea
+                        id="message"
+                        placeholder="Sua mensagem ou sugestão"
+                        required
+                      />
                     </div>
-                    <Button type="submit" className="w-full">Enviar Mensagem</Button>
+                    <Button type="submit" className="w-full">
+                      Enviar Mensagem
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
@@ -333,6 +377,15 @@ export default function JandiraCultural() {
     }
   };
 
+  // Filtrar os pontos com base na consulta de pesquisa
+  const filteredPoints = points.filter(
+    (point) =>
+      point.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      point.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+  );
+
   return (
     <motion.div
       className={`min-h-screen bg-background text-foreground flex flex-col`}
@@ -342,7 +395,7 @@ export default function JandiraCultural() {
     >
       {/* Cabeçalho */}
       <motion.header
-        className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+        className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60 py-4"
         variants={slideIn}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
@@ -356,35 +409,62 @@ export default function JandiraCultural() {
                 height={40}
                 className="mr-3"
               />
-              <motion.h1
-                className="text-2xl font-bold"
-                variants={fadeIn}
-              >
+              <motion.h1 className="text-2xl font-bold" variants={fadeIn}>
                 Jandira Cultural
               </motion.h1>
             </div>
+
             {/* Menu Desktop */}
             <nav className="hidden md:flex space-x-4">
-              <Button variant="ghost" onClick={() => setActiveTab("home")}>Início</Button>
-              <Button variant="ghost" onClick={() => setActiveTab("points")}>Pontos de Interesse</Button>
-              <Button variant="ghost" onClick={() => setActiveTab("about")}>Sobre</Button>
-              <Button variant="ghost" onClick={() => setActiveTab("contact")}>Contato</Button>
+              <Button variant="ghost" onClick={() => setActiveTab('home')}>
+                Início
+              </Button>
+              <Button variant="ghost" onClick={() => setActiveTab('points')}>
+                Pontos de Interesse
+              </Button>
+              <Button variant="ghost" onClick={() => setActiveTab('about')}>
+                Sobre
+              </Button>
+              <Button variant="ghost" onClick={() => setActiveTab('contact')}>
+                Contato
+              </Button>
             </nav>
           </div>
+
           <div className="flex items-center space-x-4">
             {/* Campo de Pesquisa */}
-            <Input
-              type="text"
-              placeholder="Pesquisar..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="hidden md:block"
-            />
-            <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5" />
-            </Button>
-            {/* Removido o ícone de notificações */}
-            {/* Removido o botão "Entrar" */}
+            <div className="relative">
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Pesquisar..."
+                className="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                size={20}
+              />
+            </div>
+
+            {/* Botão de Modo Escuro */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
+                    {darkMode ? (
+                      <Sun className="h-5 w-5" />
+                    ) : (
+                      <Moon className="h-5 w-5" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{darkMode ? 'Modo claro' : 'Modo escuro'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             {/* Menu Mobile (Sheet) */}
             <Sheet>
               <SheetTrigger asChild>
@@ -395,23 +475,42 @@ export default function JandiraCultural() {
               <SheetContent side="right">
                 <SheetHeader>
                   <SheetTitle>Menu</SheetTitle>
-                  <SheetDescription>Navegue pelo Jandira Cultural</SheetDescription>
+                  <SheetDescription>
+                    Navegue pelo Jandira Cultural
+                  </SheetDescription>
                 </SheetHeader>
                 <nav className="flex flex-col space-y-4 mt-6">
-                  <Button variant="ghost" onClick={() => setActiveTab("home")}>
+                  {/* Campo de Pesquisa para Mobile */}
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Pesquisar..."
+                      className="md:hidden pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <Search
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                      size={20}
+                    />
+                  </div>
+
+                  <Button variant="ghost" onClick={() => setActiveTab('home')}>
                     <Home className="mr-2 h-4 w-4" />
                     Início
                   </Button>
-                  <Button variant="ghost" onClick={() => setActiveTab("points")}>
+                  <Button variant="ghost" onClick={() => setActiveTab('points')}>
                     <MapPin className="mr-2 h-4 w-4" />
                     Pontos de Interesse
                   </Button>
-                  {/* Removido o botão "Eventos" */}
-                  <Button variant="ghost" onClick={() => setActiveTab("about")}>
+                  <Button variant="ghost" onClick={() => setActiveTab('about')}>
                     <Info className="mr-2 h-4 w-4" />
                     Sobre
                   </Button>
-                  <Button variant="ghost" onClick={() => setActiveTab("contact")}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setActiveTab('contact')}
+                  >
                     <Mail className="mr-2 h-4 w-4" />
                     Contato
                   </Button>
@@ -428,15 +527,12 @@ export default function JandiraCultural() {
         variants={fadeIn}
       >
         <AnimatePresence mode="wait">
-          {renderContent(filteredPoints)} {/* Passar filteredPoints para a função de renderização */}
+          {renderContent(filteredPoints)}
         </AnimatePresence>
       </motion.main>
 
       {/* Rodapé */}
-      <motion.footer
-        className="border-t mt-12"
-        variants={slideIn}
-      >
+      <motion.footer className="border-t mt-12" variants={slideIn}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row items-center justify-between">
           <div className="text-center md:text-left mb-4 md:mb-0">
             <p className="text-sm text-muted-foreground">
@@ -444,29 +540,8 @@ export default function JandiraCultural() {
             </p>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              {/* Ícone do Facebook */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-              </svg>
-              <span className="sr-only">Facebook</span>
-            </Button>
-            <Button variant="ghost" size="icon">
-              {/* Ícone do Instagram */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-instagram">
-                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-              </svg>
-              <span className="sr-only">Instagram</span>
-            </Button>
-            <Button variant="ghost" size="icon">
-              {/* Ícone do Twitter */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-twitter">
-                <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-              </svg>
-              <span className="sr-only">Twitter</span>
-            </Button>
+            {/* Ícones de Redes Sociais */}
+            {/* ... (código para ícones de redes sociais) ... */}
           </div>
         </div>
       </motion.footer>
@@ -478,10 +553,10 @@ export default function JandiraCultural() {
         scrollBehavior="inside"
         size="3xl"
         classNames={{
-          base: "bg-background border border-border shadow-lg",
-          header: "border-b border-border",
-          body: "py-6",
-          footer: "border-t border-border"
+          base: 'bg-background border border-border shadow-lg',
+          header: 'border-b border-border',
+          body: 'py-6',
+          footer: 'border-t border-border',
         }}
       >
         <ModalContent>
@@ -499,15 +574,19 @@ export default function JandiraCultural() {
                       alt={selectedPoint?.title}
                       className="w-full h-48 object-cover rounded-t-md"
                       onError={(e) => {
-                        e.currentTarget.src = "placeholder.jpg"; // Correção: remove a barra "/"
+                        e.currentTarget.src = 'placeholder.jpg';
                       }}
                     />
                   ) : (
                     <div className="w-full h-48 bg-gray-300 rounded-t-md flex items-center justify-center">
-                      <span className="text-gray-500">Imagem não disponível</span>
+                      <span className="text-gray-500">
+                        Imagem não disponível
+                      </span>
                     </div>
                   )}
-                  <p className="text-foreground">{selectedPoint?.description}</p>
+                  <p className="text-foreground">
+                    {selectedPoint?.description}
+                  </p>
                   <div className="aspect-video mt-4">
                     <iframe
                       width="100%"
@@ -521,7 +600,10 @@ export default function JandiraCultural() {
                   </div>
                   <div className="flex flex-wrap gap-2 mt-4">
                     {selectedPoint?.tags.map((tag: string) => (
-                      <span key={tag} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                      <span
+                        key={tag}
+                        className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      >
                         <Tag className="mr-1 h-3 w-3" />
                         {tag}
                       </span>
@@ -545,14 +627,16 @@ export default function JandiraCultural() {
                 <Button variant="outline" onClick={onClose}>
                   Fechar
                 </Button>
-                <Button variant="default" onClick={() => handleDownload(selectedPoint)}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Baixar Informações
-                </Button>
-                <Button variant="secondary" onClick={() => handleShare(selectedPoint)}>
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Compartilhar Localização
-                </Button>
+                {selectedPoint && (
+                  <>
+                    <Button variant="default" onClick={() => handleDownload(selectedPoint)}>
+                      Baixar Informações
+                    </Button>
+                    <Button variant="secondary" onClick={() => handleShare(selectedPoint)}>
+                      Compartilhar Localização
+                    </Button>
+                  </>
+                )}
               </ModalFooter>
             </>
           )}

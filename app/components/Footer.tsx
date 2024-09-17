@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 
 const Footer = () => (
   <footer className="border-t bg-background text-foreground">
