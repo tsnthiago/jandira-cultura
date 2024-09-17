@@ -1,19 +1,16 @@
-// ./app/components/MapComponent.tsx
-
 'use client';
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L, { LatLngExpression } from 'leaflet';
-import { cn } from '@/lib/utils';
 
-// Fix para os ícones do Leaflet no Webpack (Next.js)
+// Corrige os ícones do Leaflet para serem carregados corretamente no Next.js/Webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: typeof window !== 'undefined' ? require('leaflet/dist/images/marker-icon-2x.png') : '',
-  iconUrl: typeof window !== 'undefined' ? require('leaflet/dist/images/marker-icon.png') : '',
-  shadowUrl: typeof window !== 'undefined' ? require('leaflet/dist/images/marker-shadow.png') : '',
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png').default,
+  iconUrl: require('leaflet/dist/images/marker-icon.png').default,
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png').default,
 });
 
 interface MapComponentProps {

@@ -13,12 +13,12 @@ interface Point {
     videoId: string;
     tags: string[];
     createdAt: string;
-    location?: { lat: number; lng: number }; // Correção aqui
+    location?: { lat: number; lng: number };
 }
 
 interface PointCardProps {
     point: Point;
-    onClick: () => void; // Adicione se necessário
+    onClick?: () => void;
 }
 
 const PointCard: React.FC<PointCardProps> = ({ point, onClick }) => (
@@ -31,7 +31,7 @@ const PointCard: React.FC<PointCardProps> = ({ point, onClick }) => (
                 height={300}
                 className="w-full h-48 object-cover rounded-t-md"
                 onError={(e) => {
-                    e.currentTarget.src = "/placeholder.jpg"; // Substitua por uma URL válida para sua imagem de fallback
+                    e.currentTarget.src = "/placeholder.jpg";
                 }}
             />
         ) : (
@@ -57,11 +57,12 @@ const PointCard: React.FC<PointCardProps> = ({ point, onClick }) => (
         </CardContent>
 
         <CardFooter>
-            <Button variant="outline" className="w-full" onClick={onClick}>
+            <Button variant="outline" className="w-full" onClick={onClick || (() => console.log('Card clicado'))}>
                 Saiba mais
                 <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
         </CardFooter>
+
     </Card>
 );
 

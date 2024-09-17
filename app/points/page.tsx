@@ -48,7 +48,14 @@ const Points = () => {
             <h1 className="text-4xl font-bold text-center mb-8 text-blue-600">Pontos Turísticos</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {points.map((point: any) => (
-                    <PointCard key={point._id} point={point} />
+                    <PointCard
+                        key={point._id}
+                        point={point}
+                        onClick={() => {
+                            // Defina aqui o que acontece ao clicar no card, por exemplo:
+                            console.log(`Ponto clicado: ${point.title}`);
+                        }}
+                    />
                 ))}
             </div>
             <div className="flex justify-center mt-8">

@@ -1,40 +1,34 @@
-import { InsertOneResult, Document } from 'mongodb';
 import clientPromise from '../../../lib/mongodb';
+import { NextResponse } from 'next/server';
 
-export default async function handler(req: { method: string; body: { title: any; description: any; videoId: any; tags: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; result?: InsertOneResult<Document>; }): any; new(): any; }; }; }) {
-  if (req.method === 'POST') {
-    // Extract the data from the request body
-    const { title, description, videoId, tags } = req.body;
+export async function POST(request: Request) {
+  try {
+    const { title, description, videoId, tags } = await request.json();
 
-    // Add your validation or logic to process the data
+    // Verificação de campos obrigatórios
     if (!title || !description || !videoId) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return NextResponse.json({ message: 'Campos obrigatórios estão ausentes' }, { status: 400 });
     }
 
-    try {
-      // Connect to MongoDB
-      const client = await clientPromise;
-      const db = client.db('jandira-cultura');
+    // Conexão com o MongoDB
+    const client = await clientPromise;
+    const db = client.db('jandira-cultura');
 
-      const newPoint = {
-        title,
-        description,
-        videoId,
-        tags: tags.split(',').map((tag: string) => tag.trim()),
-        createdAt: new Date(),
-      };
+    const newPoint = {
+      title,
+      description,
+      videoId,
+      tags: tags.split(',').map((tag: string) => tag.trim()),
+      createdAt: new Date(),
+    };
 
-      // Insert the new point into the MongoDB collection
-      const result = await db.collection('points').insertOne(newPoint);
+    // Inserção no banco de dados
+    const result = await db.collection('points').insertOne(newPoint);
 
-      // Return a success message
-      return res.status(201).json({ message: 'Ponto turístico adicionado com sucesso!', result });
-    } catch (error) {
-      console.error('Erro ao inserir ponto turístico:', error);
-      return res.status(500).json({ message: 'Erro ao adicionar o ponto turístico' });
-    }
-  } else {
-    // If the request method is not POST
-    return res.status(405).json({ message: 'Método não permitido' });
+    // Resposta de sucesso
+    return NextResponse.json({ message: 'Ponto turístico adicionado com sucesso!', result }, { status: 201 });
+  } catch (error) {
+    console.error('Erro ao adicionar o ponto turístico:', error);
+    return NextResponse.json({ message: 'Erro ao adicionar o ponto turístico' }, { status: 500 });
   }
 }
