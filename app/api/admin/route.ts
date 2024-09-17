@@ -1,6 +1,7 @@
-import clientPromise from '../../lib/mongodb';
+import { InsertOneResult, Document } from 'mongodb';
+import clientPromise from '../../../lib/mongodb';
 
-export default async function handler(req, res) {
+export default async function handler(req: { method: string; body: { title: any; description: any; videoId: any; tags: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; result?: InsertOneResult<Document>; }): any; new(): any; }; }; }) {
   if (req.method === 'POST') {
     // Extract the data from the request body
     const { title, description, videoId, tags } = req.body;
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
         title,
         description,
         videoId,
-        tags: tags.split(',').map(tag => tag.trim()),
+        tags: tags.split(',').map((tag: string) => tag.trim()),
         createdAt: new Date(),
       };
 

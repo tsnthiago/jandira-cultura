@@ -1,65 +1,68 @@
-import YouTubeEmbed from './YouTubeEmbed';
+// ./app/components/PointCard.tsx
+
+import Image from 'next/image';
+import { Tag, ChevronRight } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 
 interface Point {
+    _id: string;
     title: string;
+    image: string;
     description: string;
     videoId: string;
     tags: string[];
-    createdAt: string;  // Supondo que a data de criação está disponível
-    location?: string;  // Supondo que existe um campo para a localização do ponto turístico
+    createdAt: string;
+    location?: { lat: number; lng: number }; // Correção aqui
 }
 
 interface PointCardProps {
     point: Point;
+    onClick: () => void; // Adicione se necessário
 }
 
-const PointCard: React.FC<PointCardProps> = ({ point }) => (
-    <div className="border border-gray-300 rounded-lg p-6 shadow-lg bg-white hover:shadow-2xl transition-shadow duration-300 hover:scale-105 transform transition-transform">
-        <h2 className="text-2xl font-bold text-blue-600 mb-4">{point.title}</h2>
-
-        {/* Descrição */}
-        <p className="mb-4 text-gray-700">{point.description}</p>
-
-        {/* Localização, se disponível */}
-        {point.location && (
-            <p className="text-sm text-gray-600 mb-2">
-                <span className="font-semibold">Localização:</span> {point.location}
-            </p>
+const PointCard: React.FC<PointCardProps> = ({ point, onClick }) => (
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+        {point.image ? (
+            <Image
+                src={point.image}
+                alt={point.title}
+                width={400}
+                height={300}
+                className="w-full h-48 object-cover rounded-t-md"
+                onError={(e) => {
+                    e.currentTarget.src = "/placeholder.jpg"; // Substitua por uma URL válida para sua imagem de fallback
+                }}
+            />
+        ) : (
+            <div className="w-full h-48 bg-gray-300 rounded-t-md flex items-center justify-center">
+                <span className="text-gray-500">Imagem não disponível</span>
+            </div>
         )}
 
-        {/* Embed do YouTube */}
-        <div className="relative overflow-hidden rounded-lg mb-4" style={{ paddingBottom: '56.25%' }}>
-            <iframe
-                className="absolute top-0 left-0 w-full h-full rounded-lg"
-                src={`https://www.youtube.com/embed/${point.videoId}`}
-                title={point.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-            ></iframe>
-        </div>
+        <CardHeader>
+            <CardTitle>{point.title}</CardTitle>
+            <CardDescription>{point.description.substring(0, 100)}...</CardDescription>
+        </CardHeader>
 
-        {/* Tags */}
-        <div className="mt-4">
-            <p className="font-semibold text-gray-600">Tags:</p>
-            <p className="text-sm text-gray-500">{point.tags.join(', ')}</p>
-        </div>
+        <CardContent>
+            <div className="flex flex-wrap gap-2">
+                {point.tags.map((tag: string) => (
+                    <span key={tag} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                        <Tag className="mr-1 h-3 w-3" />
+                        {tag}
+                    </span>
+                ))}
+            </div>
+        </CardContent>
 
-        {/* Data de criação */}
-        <div className="mt-2 text-sm text-gray-400">
-            <span className="font-semibold">Adicionado em:</span> {new Date(point.createdAt).toLocaleDateString()}
-        </div>
-
-        {/* Botões de interação */}
-        <div className="mt-4 flex justify-between">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                Ver Mais
-            </button>
-            <button className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">
-                Compartilhar
-            </button>
-        </div>
-    </div>
+        <CardFooter>
+            <Button variant="outline" className="w-full" onClick={onClick}>
+                Saiba mais
+                <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+        </CardFooter>
+    </Card>
 );
 
 export default PointCard;

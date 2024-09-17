@@ -1,18 +1,16 @@
-import Header from './components/Header';
+// app/layout.tsx
+
+import { ReactNode } from 'react';
 import Footer from './components/Footer';
-
-import { Toaster } from 'react-hot-toast';
-
+import ToasterProvider from './components/ToastProvider';
 import './styles/globals.css';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body>
-        <Header />
-        <Toaster position="top-right" reverseOrder={false} />
         {children}
-        <Footer />
+        <ToasterProvider />
       </body>
     </html>
   );
